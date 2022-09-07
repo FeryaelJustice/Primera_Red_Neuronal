@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- IMPORT JSCOLOR library to make it wark to the root folder of this project (where this file is located) -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primera red neuronal</title>
+    <meta name="author" content="Fernando Gonzalez Serrano">
+</head>
+
+<body>
+    <input data-jscolor="{onChange:'update(this)'}" value="#cc66ff" />
+
+    <div id="sitio">
+        Mi sitio web
+    </div>
+
+    <style type="text/css">
+        #sitio {
+            padding: 5rem;
+            font-size: 5rem;
+            margin-left: 15rem;
+        }
+    </style>
+
+    <script src="jscolor.js"></script>
+    <script>
+        // let's set defaults for all color pickers
+        jscolor.presets.default = {
+            width: 141,               // make the picker a little narrower
+            position: 'right',        // position it to the right of the target
+            previewPosition: 'right', // display color preview on the right
+            previewSize: 40,          // make the color preview bigger
+            palette: [
+                '#000000', '#7d7d7d', '#870014', '#ec1c23', '#ff7e26',
+                '#fef100', '#22b14b', '#00a1e7', '#3f47cc', '#a349a4',
+                '#ffffff', '#c3c3c3', '#b87957', '#feaec9', '#ffc80d',
+                '#eee3af', '#b5e61d', '#99d9ea', '#7092be', '#c8bfe7',
+            ],
+        };
+    </script>
+    <script src="https://unpkg.com/brain.js"></script>
+    <script type="text/javascript">
+        // Init neural network (INIT - AI STEP 1)
+        var neuralNetwork = new brain.NeuralNetwork();
+
+        // Train neural network (DATASET to AI - AI STEP 2)
+        // Give examples of when to put white text or dark text on top of a background color (output: 1 -> white, 0 -> dark)
+        neuralNetwork.train([
+            // BASIC
+            // Black background (all input in 0) = white text (output in 1)
+            { input: { red: 0, green: 0, blue: 0 }, output: { color: 1 } }, // dark pick -> white output
+            // White background (all input in 1) = black text (output in 0)
+            { input: { red: 1, green: 1, blue: 1 }, output: { color: 0 } }, // white pick -> dark output
+
+            // MORE TRAINING
+            // Green background = black text (output in 0)
+            { input: { red: 0, green: 1, blue: 0 }, output: { color: 0 } }, // green pick -> dark output
+            // Blue background = white text (output in 0)
+            { input: { red: 0, green: 0, blue: 1 }, output: { color: 1 } }, // blue pick -> white output
+            // Red background = white text (output in 0)
+            { input: { red: 1, green: 0, blue: 0 }, output: { color: 1 } }, // red pick -> white output
+        ]);
+
+        function getColor(color) {
+            return color.toRGBString().split("(")[1].split(",");
+        }
+
+        function update(color) {
+            let finalColor = getColor(color);
+
+            var div = document.getElementById("sitio");
+            div.style.backgroundColor = "rgb(" + finalColor[0] + "," + finalColor[1] + "," + finalColor[2].slice(0, -1) + ")";
+            console.log("Final color from picker: ")
+            console.log(finalColor)
+
+            let input = {
+                red: finalColor[0] / 255,
+                green: finalColor[1] / 255,
+                blue: finalColor[2].slice(0, -1) / 255
+            }
+            console.log("Print input variable color to ai:")
+            console.log(input.red + "," + input.green + "," + input.blue);
+
+            // Get the output of the neural network (giving the INPUT to AI and get result based on the training with dataset - AI STEP 3)
+            var result = neuralNetwork.run(input);
+            // Print the output result of the neural network
+            console.log("Result of neural network: ")
+            console.log(result);
+
+            // if result > .5, then white text, else dark text
+            if (result.color > .5) {
+                div.style.color = "white";
+            } else {
+                div.style.color = "black";
+            }
+        }
+
+        function neuralNetwork(red, green, blue, alpha) {
+            let blackOrWhite;
+            return blackOrWhite; // 1 = white, 0 = black
+        }
+    </script>
+</body>
+
+</html>
